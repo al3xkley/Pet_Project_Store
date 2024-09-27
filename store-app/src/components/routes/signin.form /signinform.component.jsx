@@ -1,15 +1,14 @@
+import Button from "../../button/button.component";
+import FormInput from "../../form.input/form.input.component";
+import "./signinform.styles.scss";
 import { useState } from "react";
 import {
   signInWithGooglePopup,
   createUserDocumentFromAuth,
   signInAuthUserWithEmailAndPassword,
 } from "../../../utils/firebase/firebase.utils";
-import FormInput from "../../form.input/form.input.component";
-import "./signinform.styles.scss";
-import Button from "../../button/button.component";
 
 const defaultFormFields = {
-  displayName: "",
   email: "",
   password: "",
 };
@@ -18,26 +17,23 @@ const SignInForm = () => {
   const [formFields, setFormFields] = useState(defaultFormFields);
   const { email, password } = formFields;
 
-  console.log(formFields);
-
   const resetFormFields = () => {
     setFormFields(defaultFormFields);
+  };
+
+  const signInWithGoogle = async () => {
+    await signInWithGooglePopup();
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
-      const response = await signInAuthUserWithEmailAndPassword(
-        email,
-        password
-      );
-      console.log(response);
-
+      await signInAuthUserWithEmailAndPassword(email, password);
       resetFormFields();
     } catch (error) {
       switch (error.code) {
-        case "auth/wrong-password":
+        case "auth/invalid-credential":
           alert("incorrect password or email");
           break;
         case "auth/user not found":
@@ -47,11 +43,6 @@ const SignInForm = () => {
           console.log(error);
       }
     }
-  };
-
-  const signInWithGoogle = async () => {
-    const { user } = await signInWithGooglePopup();
-    await createUserDocumentFromAuth(user);
   };
 
   const handleChange = (event) => {
@@ -81,7 +72,7 @@ const SignInForm = () => {
           value={password}
         />
         <div className="buttons-container">
-          <Button buttonType="default" type="submit" onClick={handleSubmit}>
+          <Button buttonType="default" type="submit">
             Sign In
           </Button>
           <Button type="button" buttonType="google" onClick={signInWithGoogle}>
